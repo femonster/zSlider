@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0,user-scalable=no">
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="x5-orientation" content="portrait">
+    <title>slider 组件</title>
+</head>
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+    }
+    
+    ul li {
+        list-style: none;
+    }
+    
+    html,
+    body,
+    .wrap {
+        width: 100%;
+    }
+    
+    .wrap {
+        overflow: hidden;
+    }
+    
+    ul {
+        font-size: 0;
+    }
+    
+    .item {
+        height: 8rem;
+        display: inline-block;
+    }
+    
+    .item:nth-of-type(1) {
+        background-color: blueviolet;
+    }
+    
+    .item:nth-of-type(2) {
+        background-color: greenyellow;
+    }
+    
+    .item:nth-of-type(3) {
+        background-color: rosybrown;
+    }
+    
+    .item:nth-of-type(4) {
+        background-color: rgb(230, 66, 17);
+    }
+    
+    .item:nth-of-type(5) {
+        background-color: royalblue;
+    }
+</style>
+
+<body>
+    <script>
+        window.onresize = r;
+
+        function r(resizeNum) {
+            //核心适配代码
+            var winW = window.innerWidth;
+            document.getElementsByTagName("html")[0].style.fontSize = winW * 0.15625 + "px";
+            //核心适配代码
+            if (winW > window.screen.width && resizeNum <= 10) {
+                setTimeout(function() {
+                    r(++resizeNum)
+                }, 100);
+            } else {
+                document.getElementsByTagName("body")[0].style.opacity = 1;
+            }
+        }
+        setTimeout(function() {
+            r(0)
+        }, 100);
+    </script>
+    <div class="wrap">
+        <ul>
+            <li class="item"></li>
+            <li class="item"></li>
+            <li class="item"></li>
+            <li class="item"></li>
+            <li class="item"></li>
+        </ul>
+    </div>
+</body>
+<!-- <script src="//cdn.jsdelivr.net/npm/eruda"></script>
+<script>eruda.init();</script> -->
+<script src="http://zgk.test.com/zSlider/js/vconsole.min.js"></script>
+<!-- 
+console.log('foo'); // 白底黑字  
+console.info('bar'); // 白底紫字  
+console.debug('oh'); // 白底黄字  
+console.warn('foo'); // 黄底黄字  
+console.error('bar'); // 红底红字 
+ -->
+<script>
+    var vConsole = new VConsole();
+</script>
+<script src="http://zgk.test.com/zSlider/js/without.js"></script>
+<!-- 
+    offsetWidth : 包含border
+    clientWidth : 不包含border
+    window.innerWidth : 包含滚动条
+    document.body.offsetWidth : body的width
+    document.documentElement.offsetWidth : html的width
+ -->
+
+</html>

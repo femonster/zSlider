@@ -27,35 +27,43 @@
     
     .wrap {
         overflow: hidden;
+        position: relative;
     }
     
     ul {
         font-size: 0;
+        overflow: hidden;
     }
     
     .item {
         height: 8rem;
         display: inline-block;
+        font-size: 30px;
+        line-height: 8rem;
+        text-align: center;
+        color: #fff;
     }
     
-    .item:nth-of-type(1) {
-        background-color: blueviolet;
+    .slider-page{
+        width: 100%;
+        position: absolute;
+        height: 0.5rem;
+        bottom: 0;
+        overflow: hidden;
+        text-align: center;
+        line-height: 0.5rem;
     }
-    
-    .item:nth-of-type(2) {
-        background-color: greenyellow;
+    .slider-page li{
+        display: inline-block;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background-color: #fff;
+        opacity: 0.5;
+        margin-left: 4px;
     }
-    
-    .item:nth-of-type(3) {
-        background-color: rosybrown;
-    }
-    
-    .item:nth-of-type(4) {
-        background-color: rgb(230, 66, 17);
-    }
-    
-    .item:nth-of-type(5) {
-        background-color: royalblue;
+    .slider-page li.now{
+        opacity: 1;
     }
 </style>
 
@@ -81,18 +89,20 @@
         }, 100);
     </script>
     <div class="wrap">
-        <ul>
-            <li class="item"></li>
-            <li class="item"></li>
-            <li class="item"></li>
-            <li class="item"></li>
-            <li class="item"></li>
+        <ul class="slider">
+            <li class="item" style="background-color: blueviolet;">1</li>
+            <li class="item" style="background-color: greenyellow;">2</li>
+            <li class="item" style="background-color: rosybrown;">3</li>
+            <li class="item" style="background-color: rgb(230, 66, 17);">4</li>
+            <li class="item" style="background-color: royalblue;">5</li>
+        </ul>
+        <ul class="slider-page">
         </ul>
     </div>
 </body>
 <!-- <script src="//cdn.jsdelivr.net/npm/eruda"></script>
 <script>eruda.init();</script> -->
-<script src="http://zgk.test.com/zSlider/js/vconsole.min.js"></script>
+<!-- <script src="http://zgk.test.com/zSlider/js/vconsole.min.js"></script> -->
 <!-- 
 console.log('foo'); // 白底黑字  
 console.info('bar'); // 白底紫字  
@@ -100,10 +110,19 @@ console.debug('oh'); // 白底黄字
 console.warn('foo'); // 黄底黄字  
 console.error('bar'); // 红底红字 
  -->
-<script>
+<!-- <script>
     var vConsole = new VConsole();
+</script> -->
+<!-- <script src="http://zgk.test.com/zSlider/js/without.js"></script> -->
+<script src="http://zgk.test.com/zSlider/js/zSlider.js"></script>
+<script>
+    var o = new Zslider({
+        wrap: ".slider",
+        pageWrap: ".slider-page",
+        page: true,
+        infinite:true
+    })
 </script>
-<script src="http://zgk.test.com/zSlider/js/without.js"></script>
 <!-- 
     offsetWidth : 包含border
     clientWidth : 不包含border

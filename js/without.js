@@ -16,61 +16,13 @@ function $(selector, context) {
     return domArray.length === 1 || domArray.length === 0 ? domArray[0] : domArray;
 }
 
-function istype(o, type) {
-    if (type) {
-        var _type = type.toLowerCase();
-    }
-    switch (_type) {
-        case 'string':
-            return Object.prototype.toString.call(o) === '[object String]';
-        case 'number':
-            return Object.prototype.toString.call(o) === '[object Number]';
-        case 'boolean':
-            return Object.prototype.toString.call(o) === '[object Boolean]';
-        case 'undefined':
-            return Object.prototype.toString.call(o) === '[object Undefined]';
-        case 'null':
-            return Object.prototype.toString.call(o) === '[object Null]';
-        case 'function':
-            return Object.prototype.toString.call(o) === '[object Function]';
-        case 'array':
-            return Object.prototype.toString.call(o) === '[object Array]';
-        case 'object':
-            return Object.prototype.toString.call(o) === '[object Object]';
-        case 'nan':
-            return isNaN(o);
-        case 'elements':
-            return Object.prototype.toString.call(o).indexOf('HTML') !== -1
-        default:
-            return Object.prototype.toString.call(o)
-    }
-}
-
-// function wapconsole(opts){
-//     var obox = null;
-//     if(document.querySelector("console-zgkbox")){
-//         obox = document.querySelector("console-zgkbox");
-//     }else{
-//         var obox = document.createElement("div");
-//         obox.className = "console-zgkbox";
-//         obox.style.cssText="position:fixed;top:0;left:0;width:100%;text-align:center;line-height:1.3;background-color:rgba(0,0,0,0.6);color:#ffffff;font-size:12px;";
-//         document.body.appendChild(obox);
-//     }
-//     var op = document.createElement("p");
-//     if(istype(opts,'object')){
-//         op.innerText = JSON.stringify(opts);
-//     }else{
-//         op.innerText = opts.toString();
-//     }
-//     obox.appendChild(op);
-// }
-
 var currentPos = 0; //记录当前页面的位置（px）
 var currentPoint = -1; //记录当前点的位置（？）
 var pageNow = 1; //当前页码
 var points = null; //页码数
 
 var slider = {
+    pageNow:0,
     transform: function(obj,translate) {
         setTransform(obj, "translate3d(" + translate + "px, 0, 0)", "transform");
         currentPos = translate;
@@ -89,6 +41,15 @@ var slider = {
         obj.style.width = wrapW + "px";
         this.bindEvent(obj,points);
 
+    },
+    setPageNow:function(p){
+        var pageUl = $(".slider-page");
+        var pageli = $(".item-page",pageUl);
+
+        Array.prototype.slice.call(pageli).forEach(function(item,index){
+            item.classList.remove("now");
+        })
+        pageli[p-1].classList.add("now");
     },
     bindEvent: function(box,points) {
         var pageW = window.innerWidth; //页面宽度
@@ -117,7 +78,7 @@ var slider = {
         }.bind(this),false);
 
         document.addEventListener("touchmove",function(e){
-            e.preventDefault();
+            // e.preventDefault();
 
             // 如果当前滑动已结束，不管其他手指是否在屏幕上都禁止move事件
             if(isTouchEnd) return;
@@ -138,7 +99,7 @@ var slider = {
                 }
                 direct = deltaX>0?"r":"l"; //判断手指滑动方向
             }
-        }.bind(this),false);
+        }.bind(this),{passive: true});
 
         document.addEventListener("touchend",function(e){
             e.preventDefault();
@@ -175,17 +136,18 @@ var slider = {
                 // 滑动
                 this.transform(box,translate);
                 // 当前页码
-                pageNow = Math.round(Math.abs(translate)/pageW)+1;
+                this.pageNow = pageNow = Math.round(Math.abs(translate)/pageW)+1;
 
-                console.log(pageNow);
+                this.setPageNow(pageNow);
             }
         }.bind(this),false);
 
     },
     init: function() {
-        var wraps = $(".wrap ul");
+        var wraps = $(".slider");
         this.setSliderWidth(wraps);
     }
+
 }
 
 slider.init();

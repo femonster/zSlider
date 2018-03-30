@@ -91,11 +91,12 @@ opts = {
     pageWrap: 下标容器，
     page: boolean 是否显示下标
     infinite: boolean 是否无限循环
+    autoTime: 1000 ( 自动循环开启&时间 单位ms , 只有在 infinite == true 时设置有效)
 }
 
-this.goNext : 下一页
-this.goPrev : 上一页
-this.goOne  : 某一页
+this.goNext(trans) : 下一页
+this.goPrev(trans) : 上一页
+this.goOne(p,trans)  : 某一页(p为页码，trans为过渡时间,单位s ，可不传)
 this.getNowPage : 获取当前页
 
 this.currPos : 记录当前页面的位置（px）
@@ -120,7 +121,7 @@ function Zslider(opts) {
 
 // 查看容器元素是否存在
 Zslider.prototype.checkOptions = function() {
-    if (!document.querySelector(this.options.wrap)) {
+    if (!document.querySelector(this.options.wrap) || !document.querySelector(this.options.wrap).children[0]) {
         throw new Error('element is required');
     }
     return this
@@ -128,13 +129,14 @@ Zslider.prototype.checkOptions = function() {
 
 // 循环滚动
 Zslider.prototype.checkInfinite = function(){
+    this.oWrap = document.querySelector(this.options.wrap);
+    this.moveBox = this.oWrap.children[0];
     if(this.options.infinite){
-        var oWrap = document.querySelector(this.options.wrap);
+        var oWrap = this.moveBox;
         var ocloneWrap = oWrap.cloneNode(true);
         var aLi = ocloneWrap.children;
 
-        console.log(oWrap);
-        console.log(oWrap.children[0].cloneNode(true));
+        // 前后各克隆一个
         oWrap.insertBefore(ocloneWrap.children[aLi.length-1].cloneNode(true),oWrap.children[0]);
         oWrap.appendChild(ocloneWrap.children[0].cloneNode(true));
     }
@@ -144,12 +146,11 @@ Zslider.prototype.checkInfinite = function(){
 
 // 设置原始页码
 Zslider.prototype.setOriginPage = function() {
-    console.log(this.page);
     if (this.options.page) {
         if(!document.querySelector(this.options.pageWrap)){
             throw new Error('page element is required');
         }else{
-            var oWrap = document.querySelector(this.options.wrap);
+            var oWrap = this.moveBox;
             var iw = -oWrap.offsetWidth;
             var opWrap = document.querySelector(this.options.pageWrap);
             var iLen = oWrap.children.length;
@@ -158,11 +159,13 @@ Zslider.prototype.setOriginPage = function() {
                 for(var i = 0;i<iLen-2;i++){
                     str+="<li></li>";
                 }
+                this.allpages = iLen - 2;
                 this.transform(oWrap, iw);
             }else{
                 Array.prototype.slice.call(oWrap.children).forEach(function(item,index) {
                     str+="<li></li>";
                 })
+                this.allpages = iLen;
             }
             
             opWrap.innerHTML = str;
@@ -179,24 +182,25 @@ Zslider.prototype.transform = function(obj, translate) {
 
 // 设置宽度
 Zslider.prototype.setSliderWidth = function() {
-    var oWrap = document.querySelector(this.options.wrap),
-        items = Array.prototype.slice.call(oWrap.children),
-        itemW = document.body.offsetWidth || document.documentElement.offsetWidth,
-        wrapW = 0;
+
+    var items = Array.prototype.slice.call(this.moveBox.children),
+        itemW = this.moveBox.offsetWidth,
+        moveBoxW = 0;
     this.points = items.length;
+    this.wrapW = itemW;
 
     items.forEach(function(item, index) {
         item.style.width = itemW + "px";
-        wrapW += itemW;
+        moveBoxW += itemW;
     });
 
-    oWrap.style.width = wrapW + "px";
+    this.moveBox.style.width = moveBoxW + "px";
     this.bindEvent();
 }
 
 // 绑定事件
 Zslider.prototype.bindEvent = function() {
-    var pageW = window.innerWidth; //页面宽度
+    var pageW = this.oWrap.offsetWidth; //页面宽度
     var maxWidth = -pageW * (this.points - 1); //页面滑动最后一页的位置    
     var isTouchEnd = true; //当前滑动是否结束
     var startPos = 0; //手指按下时的滑块位置
@@ -205,7 +209,7 @@ Zslider.prototype.bindEvent = function() {
     var startX, startY;
     var direct = "l"; //滑动的方向
     var moveLen = 0; //手指当前滑动的距离
-    var box = document.querySelector(this.options.wrap);
+    var box = this.moveBox;
 
     box.addEventListener("touchstart", function(e) {
         e.preventDefault();
@@ -265,12 +269,11 @@ Zslider.prototype.bindEvent = function() {
             }
 
             this.transform(box, translate);
-            // if(this.options.infinite){
-            //     this.pageNow = Math.round(Math.abs(translate) / pageW)/2 + 1;
-
-            // }else{
+            if(this.options.infinite){
+                this.pageNow = Math.round(Math.abs(translate) / pageW)/2 + 1;
+            }else{
                 this.pageNow = Math.round(Math.abs(translate) / pageW) + 1;
-            // }
+            }
 
             this.setPageNow();
         }
@@ -278,7 +281,7 @@ Zslider.prototype.bindEvent = function() {
 }
 
 // 设置页码
-Zslider.prototype.setPageNow = function() {
+Zslider.prototype.setPageNow = function(pn) {
     if (this.options.page) {
         var pageUl = document.querySelector(this.options.pageWrap);
         var pageli = pageUl.children;
@@ -286,11 +289,44 @@ Zslider.prototype.setPageNow = function() {
         Array.prototype.slice.call(pageli).forEach(function(item,index){
             item.classList.remove("now");
         })
-        pageli[this.pageNow-1].classList.add("now");
+        pn = pn || this.pageNow;
+        pageli[pn-1].classList.add("now");
     }      
 }
 
+// 下一页
+Zslider.prototype.goNext = function(trans) {
+    if(this.pageNow>=this.allpages) return;
+    this.goOne(this.pageNow+1,trans);
+};
 
-Zslider.prototype.goNext = function() {};
-Zslider.prototype.goPrev = function() {};
-Zslider.prototype.getNowPage = function() {};
+// 上一页
+Zslider.prototype.goPrev = function(trans) {
+    if(this.pageNow<=1) return;
+    this.goOne(this.pageNow-1,trans);
+};
+
+// 某一页
+Zslider.prototype.goOne = function(p,trans) {
+    
+    if(p<1 || p>this.allpages){
+        throw new Error("不在当前页码范围内");
+        return;
+    }
+
+    trans = trans === 0 ? 0 : (trans || 0.3);
+    
+    var iw = this.wrapW;
+    var pw = -iw * (p-1);
+    
+    var obox = this.moveBox;
+    obox.style.webkitTransition = trans+"s ease -webkit-transform";
+    this.transform(obox,pw);
+    this.setPageNow(p);
+    this.pageNow = p;
+};
+
+// 获得当前页码
+Zslider.prototype.getNowPage = function() {
+    return this.pageNow;
+};

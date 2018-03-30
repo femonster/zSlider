@@ -125,7 +125,7 @@ Zslider.prototype.checkOptions = function() {
         throw new Error('element is required');
     }
     return this
-}
+};
 
 // 循环滚动
 Zslider.prototype.checkInfinite = function(){
@@ -142,7 +142,7 @@ Zslider.prototype.checkInfinite = function(){
     }
 
     return this;
-}
+};
 
 // 设置原始页码
 Zslider.prototype.setOriginPage = function() {
@@ -173,12 +173,12 @@ Zslider.prototype.setOriginPage = function() {
         }
     }
     return this
-}
+};
 
 Zslider.prototype.transform = function(obj, translate) {
     setTransform(obj, "translate3d(" + translate + "px, 0, 0)", "transform");
     this.currPos = translate;
-}
+};
 
 // 设置宽度
 Zslider.prototype.setSliderWidth = function() {
@@ -196,7 +196,7 @@ Zslider.prototype.setSliderWidth = function() {
 
     this.moveBox.style.width = moveBoxW + "px";
     this.bindEvent();
-}
+};
 
 // 绑定事件
 Zslider.prototype.bindEvent = function() {
@@ -249,6 +249,7 @@ Zslider.prototype.bindEvent = function() {
     document.addEventListener("touchend", function(e) {
         e.preventDefault();
         var translate = 0;
+        var _this = this;
         // 手指在屏幕上的停留时间
         var deltaT = +new Date() - startT;
         if (isMove && !isTouchEnd) {
@@ -270,15 +271,32 @@ Zslider.prototype.bindEvent = function() {
 
             this.transform(box, translate);
             if(this.options.infinite){
-                this.pageNow = Math.round(Math.abs(translate) / pageW)/2 + 1;
+
+                this.pageNow = Math.round(Math.abs(translate) / pageW);
+                if(this.pageNow==0){this.pageNow=this.allpages};
+                console.log(Math.abs(translate),this.pageNow);
+                if(translate<0 && translate>maxWidth){
+                    this.setPageNow();
+                }
+                if(translate==0){
+                    setTimeout(function(){
+                        _this.goOne(_this.allpages,0);
+                    },300);
+                    
+                }else if(translate == maxWidth){
+                    setTimeout(function(){
+                        _this.goOne(1,0);
+                    },300);
+                }
+                
             }else{
                 this.pageNow = Math.round(Math.abs(translate) / pageW) + 1;
+                this.setPageNow();
             }
-
-            this.setPageNow();
+            
         }
     }.bind(this), false);
-}
+};
 
 // 设置页码
 Zslider.prototype.setPageNow = function(pn) {
@@ -292,7 +310,7 @@ Zslider.prototype.setPageNow = function(pn) {
         pn = pn || this.pageNow;
         pageli[pn-1].classList.add("now");
     }      
-}
+};
 
 // 下一页
 Zslider.prototype.goNext = function(trans) {
@@ -308,10 +326,18 @@ Zslider.prototype.goPrev = function(trans) {
 
 // 某一页
 Zslider.prototype.goOne = function(p,trans) {
-    
+    console.log(this.allpages);
     if(p<1 || p>this.allpages){
         throw new Error("不在当前页码范围内");
         return;
+    }
+    if(this.options.infinite){
+        if(p==1){
+            p=2;
+        }
+        if(p==this.allpages){
+            p = this.allpages+1;
+        }
     }
 
     trans = trans === 0 ? 0 : (trans || 0.3);
@@ -322,11 +348,13 @@ Zslider.prototype.goOne = function(p,trans) {
     var obox = this.moveBox;
     obox.style.webkitTransition = trans+"s ease -webkit-transform";
     this.transform(obox,pw);
-    this.setPageNow(p);
-    this.pageNow = p;
+    this.pageNow = this.options.infinite ?p-1:p;
+    this.setPageNow(this.pageNow);
+
 };
 
 // 获得当前页码
 Zslider.prototype.getNowPage = function() {
+    
     return this.pageNow;
 };

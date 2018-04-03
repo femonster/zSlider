@@ -247,6 +247,7 @@ Zslider.prototype.bindEvent = function() {
     }.bind(this), false);
 
     document.addEventListener("touchend", function(e) {
+
         e.preventDefault();
         var translate = 0;
         var _this = this;
@@ -278,6 +279,7 @@ Zslider.prototype.bindEvent = function() {
                 if(translate<0 && translate>maxWidth){
                     this.setPageNow();
                 }
+                // 当滑动结束时换到第一页或者最后一页
                 if(translate==0){
                     setTimeout(function(){
                         _this.goOne(_this.allpages,0);

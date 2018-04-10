@@ -90,7 +90,7 @@
     </script>
     <div class="wrap">
         <ul class="slider">
-            <li class="item" style="background-color: blueviolet;">1</li>
+            <li class="item" style="background-color: blueviolet;"><a href="https://segmentfault.com/a/1190000013975247">1</a></li>
             <li class="item" style="background-color: greenyellow;">2</li>
             <li class="item" style="background-color: rosybrown;">3</li>
             <li class="item" style="background-color: rgb(230, 66, 17);">4</li>
@@ -118,9 +118,11 @@ console.error('bar'); // 红底红字
 <script>
     var o = new Zslider({
         wrap: ".wrap",
-        pageWrap: ".slider-page",
-        page: true,
-        infinite:true
+        loop:true,
+        // auto:true,
+        cb:function(ind) {
+            console.log("当前索引",ind+1);
+        }
     })
 </script>
 <!-- 

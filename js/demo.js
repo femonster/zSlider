@@ -203,6 +203,7 @@ Zslider.prototype.bindEvent = function() {
             var touch = e.touches[0];
             var deltaX = touch.pageX - (this.point_x===null?touch.pageX:this.point_x);
             var deltaY = touch.pageY - (this.point_y===null?touch.pageY:this.point_y);
+            console.log(deltaX,deltaY);
             if(Math.abs(deltaX) > Math.abs(deltaY)){
                 this.moveLen = deltaX;
                 var translate = startPos + deltaX;
@@ -216,6 +217,7 @@ Zslider.prototype.bindEvent = function() {
     }.bind(this),false);
 
     document.addEventListener("touchend",function(e){
+        console.log(this.direct);
         // e.preventDefault();
         !this.busy && this.moveEnd(); 
     }.bind(this),false);
@@ -226,7 +228,11 @@ Zslider.prototype.moveEnd = function() {
     var ind; // 真正的索引（一开始为-1，最后为length）
     //var changeX = this.currPos % this.oneMoveWidth; //检查它是否已经滑动到当前页，而不是滑到一半
     if(deltaT<300){
-
+        //if(this.currPos<this.minLeft){ //手指向左滑动
+        //ind = this.index+1;
+        //}else if(this.currPos>this.maxLeft){ //手指 向右滑动
+            //nd = this.index-1;
+        //}else if(changeX!=0){
             if(this.direct=="l"){
                 ind = this.index+1;
             }else if(this.direct=="r"){
@@ -234,12 +240,18 @@ Zslider.prototype.moveEnd = function() {
             }else{
                 ind = this.index;
             }
-
+        //}else{
+            //ind = this.index;
+        //}
     }else{
         if(Math.abs(this.moveLen)/this.oneMoveWidth<0.4){
             ind = this.index;
         }else{
-
+            //if(this.currPos<this.minLeft){ //手指向左滑动
+            //ind = this.index+1;
+            //}else if(this.currPos>this.maxLeft){ //手指 向右滑动
+                //ind = this.index-1;
+            //}else if(changeX!=0){
                 if(this.direct=="l"){
                 ind = this.index+1;
                 }else if(this.direct=="r"){
@@ -247,6 +259,9 @@ Zslider.prototype.moveEnd = function() {
                 }else{
                     ind = this.index;
                 }
+            //}else{
+                //ind = this.index;
+            //}
         }
     }
     
@@ -258,7 +273,7 @@ Zslider.prototype.moveEnd = function() {
 Zslider.prototype.goOne = function(ind,ani) {
 
     var self = this;
-    if(this.busy) return;
+    if(this.busy)return;
     clearTimeout(this.timer);
     this.busy = true;
     this.addTransition(ani);
